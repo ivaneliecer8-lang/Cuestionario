@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cuestionario HTML y JavaScript</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .exam-content {
+            padding: 40px;
+        }
+
+        .question-container {
+            margin-bottom: 30px;
+            padding: 25px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            border-left: 5px solid #667eea;
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .question-number {
+            background: #667eea;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+
+        .difficulty {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+
+        .difficulty.basica {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .difficulty.intermedia {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .difficulty.avanzada {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .question-text {
+            font-size: 1.1em;
+            margin-bottom: 20px;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .option {
+            padding: 15px 20px;
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+        }
+
+        .option:hover {
+            border-color: #667eea;
+            background: #f0f4ff;
+            transform: translateX(5px);
+        }
+
+        .option input[type="radio"] {
+            margin-right: 15px;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .option.selected {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .option.correct {
+            border-color: #28a745;
+            background: #d4edda;
+        }
+
+        .option.incorrect {
+            border-color: #dc3545;
+            background: #f8d7da;
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.1em;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: block;
+            margin: 30px auto;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        .submit-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .results {
+            display: none;
+            text-align: center;
+            padding: 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+            margin: 20px 0;
+        }
+
+        .results.show {
+            display: block;
+        }
+
+        .score {
+            font-size: 3em;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+
+        .score-details {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .restart-btn {
+            background: white;
+            color: #667eea;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.1em;
+            border-radius: 50px;
+            cursor: pointer;
+            margin-top: 20px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .restart-btn:hover {
+            transform: scale(1.05);
+        }
+
+        @media (max-width: 768px) {
+            .exam-content {
+                padding: 20px;
+            }
+
+            .question-container {
+                padding: 15px;
+            }
+
+            .header h1 {
+                font-size: 1.5em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎓 Cuestionario HTML y JavaScript 🎓</h1>
+            <p>100 preguntas de nivel básico a avanzado</p>
+        </div>
+        
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+
+        <div class="exam-content" id="examContent"></div>
+
+        <button class="submit-btn" id="submitBtn">Calificar Examen</button>
+
+        <div class="results" id="results">
+            <h2>¡Examen Completado!</h2>
+            <div class="score" id="score">0%</div>
+            <div class="score-details" id="scoreDetails"></div>
+            <button class="restart-btn" onclick="location.reload()">Reiniciar Examen</button>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            {id: 1, difficulty: "basica", question: "¿Qué significa HTML?", options: ["Hyper Text Markup Language", "High Tech Modern Language", "Home Tool Markup Language", "Hyperlinks and Text Markup Language"], correct: 0},
+            {id: 2, difficulty: "basica", question: "¿Cuál es la etiqueta correcta para crear un enlace en HTML?", options: ["<link>", "<a>", "<href>", "<url>"], correct: 1},
+            {id: 3, difficulty: "basica", question: "¿Qué etiqueta se usa para crear el encabezado más grande?", options: ["<h6>", "<heading>", "<h1>", "<header>"], correct: 2},
+            {id: 4, difficulty: "basica", question: "¿Cuál es la etiqueta correcta para insertar una imagen?", options: ["<image>", "<img>", "<picture>", "<src>"], correct: 1},
+            {id: 5, difficulty: "basica", question: "¿Qué atributo se usa para definir el texto alternativo de una imagen?", options: ["title", "alt", "text", "caption"], correct: 1},
+            {id: 6, difficulty: "basica", question: "¿Cuál es la etiqueta correcta para crear una lista no ordenada?", options: ["<ol>", "<list>", "<ul>", "<dl>"], correct: 2},
+            {id: 7, difficulty: "basica", question: "¿Qué etiqueta se usa para crear un párrafo?", options: ["<paragraph>", "<p>", "<par>", "<text>"], correct: 1},
+            {id: 8, difficulty: "basica", question: "¿Cuál es la estructura básica correcta de un documento HTML?", options: ["<html><body></body></html>", "<html><head></head><body></body></html>", "<!DOCTYPE html><html><head></head><body></body></html>", "<html><title></title><body></body></html>"], correct: 2},
+            {id: 9, difficulty: "basica", question: "¿Qué etiqueta se usa para crear texto en negrita?", options: ["<bold>", "<b>", "<strong>", "Tanto b como c son correctas"], correct: 3},
+            {id: 10, difficulty: "basica", question: "¿Cuál es la etiqueta correcta para crear una tabla?", options: ["<tab>", "<table>", "<tbl>", "<grid>"], correct: 1},
+            {id: 11, difficulty: "basica", question: "¿Qué etiqueta se usa para crear un salto de línea?", options: ["<break>", "<lb>", "<br>", "<newline>"], correct: 2},
+            {id: 12, difficulty: "basica", question: "¿Cuál es la etiqueta para crear un botón?", options: ["<btn>", "<button>", "<input type='button'>", "Tanto b como c son correctas"], correct: 3},
+            {id: 13, difficulty: "basica", question: "¿Qué etiqueta se usa para definir el título de la página?", options: ["<title>", "<head>", "<header>", "<meta>"], correct: 0},
+            {id: 14, difficulty: "basica", question: "¿Cuál es la etiqueta correcta para crear un campo de texto?", options: ["<textfield>", "<input type='text'>", "<text>", "<field>"], correct: 1},
+            {id: 15, difficulty: "basica", question: "¿Qué etiqueta se usa para crear un comentario en HTML?", options: ["// comentario", "<!-- comentario -->", "/* comentario */", "# comentario"], correct: 1},
+            {id: 16, difficulty: "basica", question: "¿Cuál es la etiqueta para crear una línea horizontal?", options: ["<line>", "<hr>", "<hl>", "<horizontal>"], correct: 1},
+            {id: 17, difficulty: "basica", question: "¿Qué etiqueta se usa para crear una lista ordenada?", options: ["<ul>", "<ol>", "<list>", "<order>"], correct: 1},
+            {id: 18, difficulty: "basica", question: "¿Cuál es el atributo para definir el destino de un enlace?", options: ["src", "href", "link", "url"], correct: 1},
+            {id: 19, difficulty: "basica", question: "¿Qué etiqueta se usa para texto en cursiva?", options: ["<i>", "<italic>", "<em>", "Tanto a como c son correctas"], correct: 3},
+            {id: 20, difficulty: "basica", question: "¿Cuál es la etiqueta para crear un formulario?", options: ["<input>", "<form>", "<field>", "<formfield>"], correct: 1},
+            {id: 21, difficulty: "intermedia", question: "¿Qué atributo se usa para hacer que un enlace se abra en una nueva pestaña?", options: ["target='_new'", "target='_blank'", "new='tab'", "window='new'"], correct: 1},
+            {id: 22, difficulty: "intermedia", question: "¿Cuál es la diferencia entre <div> y <span>?", options: ["No hay diferencia", "<div> es en línea y <span> es en bloque", "<div> es en bloque y <span> es en línea", "Ambos son en bloque"], correct: 2},
+            {id: 23, difficulty: "intermedia", question: "¿Qué etiqueta HTML5 se usa para contenido independiente?", options: ["<section>", "<article>", "<div>", "<content>"], correct: 1},
+            {id: 24, difficulty: "intermedia", question: "¿Cuál es el atributo correcto para validar un email en un input?", options: ["type='email'", "validate='email'", "format='email'", "pattern='email'"], correct: 0},
+            {id: 25, difficulty: "intermedia", question: "¿Qué etiqueta se usa para insertar video en HTML5?", options: ["<movie>", "<media>", "<video>", "<player>"], correct: 2},
+            {id: 26, difficulty: "intermedia", question: "¿Cuál es el propósito de la etiqueta <meta charset='UTF-8'>?", options: ["Definir el estilo", "Definir la codificación de caracteres", "Definir el idioma", "Definir el título"], correct: 1},
+            {id: 27, difficulty: "intermedia", question: "¿Qué atributo hace que un campo de formulario sea obligatorio?", options: ["mandatory", "required", "validate", "necessary"], correct: 1},
+            {id: 28, difficulty: "intermedia", question: "¿Cuál es la etiqueta semántica para el pie de página?", options: ["<bottom>", "<footer>", "<foot>", "<end>"], correct: 1},
+            {id: 29, difficulty: "intermedia", question: "¿Qué etiqueta se usa para definir navegación?", options: ["<navigation>", "<menu>", "<nav>", "<links>"], correct: 2},
+            {id: 30, difficulty: "intermedia", question: "¿Cuál es el atributo para desactivar un input?", options: ["inactive", "disabled", "readonly", "locked"], correct: 1},
+            {id: 31, difficulty: "intermedia", question: "¿Qué etiqueta se usa para audio en HTML5?", options: ["<sound>", "<audio>", "<music>", "<player>"], correct: 1},
+            {id: 32, difficulty: "intermedia", question: "¿Cuál es el propósito del atributo 'placeholder'?", options: ["Definir el valor por defecto", "Mostrar texto de ayuda en el campo", "Validar el input", "Dar formato al texto"], correct: 1},
+            {id: 33, difficulty: "intermedia", question: "¿Qué etiqueta define el encabezado de una página?", options: ["<head>", "<header>", "<top>", "<heading>"], correct: 1},
+            {id: 34, difficulty: "intermedia", question: "¿Cuál es el atributo para vincular CSS externo?", options: ["src", "href", "link", "style"], correct: 1},
+            {id: 35, difficulty: "intermedia", question: "¿Qué etiqueta se usa para definir una sección genérica?", options: ["<div>", "<section>", "<part>", "<segment>"], correct: 1},
+            {id: 36, difficulty: "avanzada", question: "¿Qué es el DOM (Document Object Model)?", options: ["Un lenguaje de programación", "Una representación estructurada del documento HTML", "Un tipo de base de datos", "Un framework de JavaScript"], correct: 1},
+            {id: 37, difficulty: "avanzada", question: "¿Qué es el atributo 'data-*'?", options: ["Para validar datos", "Para almacenar datos personalizados en elementos HTML", "Para definir el tipo de dato", "Para conectar con bases de datos"], correct: 1},
+            {id: 38, difficulty: "avanzada", question: "¿Qué hace el atributo 'defer' en un script?", options: ["Ejecuta el script inmediatamente", "Ejecuta el script después de que el documento se haya parseado", "Previene la ejecución del script", "Ejecuta el script en segundo plano"], correct: 1},
+            {id: 39, difficulty: "avanzada", question: "¿Cuál es la diferencia entre 'async' y 'defer'?", options: ["No hay diferencia", "async ejecuta cuando está disponible, defer espera al parseo", "defer es más rápido que async", "async solo funciona con módulos"], correct: 1},
+            {id: 40, difficulty: "avanzada", question: "¿Qué es el Web Storage API?", options: ["Un sistema de archivos", "Una API para almacenar datos en el navegador", "Una base de datos SQL", "Un sistema de cookies"], correct: 1},
+            {id: 41, difficulty: "avanzada", question: "¿Qué es un Service Worker?", options: ["Un tipo de servidor", "Un script que se ejecuta en segundo plano", "Un framework JavaScript", "Un tipo de base de datos"], correct: 1},
+            {id: 42, difficulty: "avanzada", question: "¿Qué es el atributo 'srcset' en imágenes?", options: ["Para definir múltiples fuentes de imagen para responsive design", "Para validar la imagen", "Para comprimir la imagen", "Para aplicar filtros"], correct: 0},
+            {id: 43, difficulty: "avanzada", question: "¿Qué es Shadow DOM?", options: ["Un efecto visual", "Una forma de encapsular estilos y markup", "Un tipo de animación", "Un framework CSS"], correct: 1},
+            {id: 44, difficulty: "avanzada", question: "¿Qué hace el atributo 'contenteditable'?", options: ["Valida el contenido", "Permite editar el contenido del elemento", "Protege el contenido", "Oculta el contenido"], correct: 1},
+            {id: 45, difficulty: "avanzada", question: "¿Qué es la API Intersection Observer?", options: ["Para detectar colisiones", "Para observar cambios en la intersección de elementos", "Para medir el rendimiento", "Para validar formularios"], correct: 1},
+            {id: 46, difficulty: "avanzada", question: "¿Qué es el atributo 'preload' en enlaces?", options: ["Para cargar recursos antes de tiempo", "Para validar enlaces", "Para comprimir recursos", "Para cachear recursos"], correct: 0},
+            {id: 47, difficulty: "avanzada", question: "¿Qué es Web Components?", options: ["Un framework", "Un conjunto de APIs para crear elementos personalizados reutilizables", "Una librería CSS", "Un preprocesador"], correct: 1},
+            {id: 48, difficulty: "avanzada", question: "¿Qué hace el atributo 'loading=lazy'?", options: ["Carga lenta de imágenes (lazy loading)", "Reduce la calidad de la imagen", "Comprime la imagen", "Cachea la imagen"], correct: 0},
+            {id: 49, difficulty: "avanzada", question: "¿Qué es la API Canvas?", options: ["Para crear formularios", "Para dibujar gráficos mediante JavaScript", "Para editar imágenes", "Para crear animaciones CSS"], correct: 1},
+            {id: 50, difficulty: "avanzada", question: "¿Qué es IndexedDB?", options: ["Una base de datos SQL", "Una base de datos NoSQL en el navegador", "Un tipo de cookie", "Un sistema de archivos"], correct: 1},
+            {id: 51, difficulty: "basica", question: "¿Cómo se declara una variable en JavaScript?", options: ["variable x;", "var x;", "v x;", "x = var;"], correct: 1},
+            {id: 52, difficulty: "basica", question: "¿Cuál es el operador de igualdad estricta en JavaScript?", options: ["==", "===", "=", "!="], correct: 1},
+            {id: 53, difficulty: "basica", question: "¿Cómo se escribe un comentario de una línea en JavaScript?", options: ["// comentario", "<!-- comentario -->", "/* comentario */", "# comentario"], correct: 0},
+            {id: 54, difficulty: "basica", question: "¿Qué función se usa para imprimir en la consola?", options: ["print()", "console.log()", "log()", "write()"], correct: 1},
+            {id: 55, difficulty: "basica", question: "¿Cuál es el tipo de dato para texto en JavaScript?", options: ["text", "string", "char", "varchar"], correct: 1},
+            {id: 56, difficulty: "basica", question: "¿Cómo se declara una función en JavaScript?", options: ["function myFunction()", "def myFunction()", "func myFunction()", "function:myFunction()"], correct: 0},
+            {id: 57, difficulty: "basica", question: "¿Cuál es el operador lógico AND en JavaScript?", options: ["&", "&&", "and", "AND"], correct: 1},
+            {id: 58, difficulty: "basica", question: "¿Qué método se usa para agregar un elemento al final de un array?", options: ["add()", "push()", "append()", "insert()"], correct: 1},
+            {id: 59, difficulty: "basica", question: "¿Cómo se crea un array en JavaScript?", options: ["var arr = []", "var arr = {}", "var arr = ()", "var arr = <>"], correct: 0},
+            {id: 60, difficulty: "basica", question: "¿Qué retorna typeof null?", options: ["'null'", "'object'", "'undefined'", "'number'"], correct: 1},
+            {id: 61, difficulty: "basica", question: "¿Cómo se escribe un condicional if en JavaScript?", options: ["if x = 5", "if (x == 5)", "if x == 5 then", "if x equals 5"], correct: 1},
+            {id: 62, difficulty: "basica", question: "¿Qué método se usa para eliminar el último elemento de un array?", options: ["remove()", "delete()", "pop()", "removeLast()"], correct: 2},
+            {id: 63, difficulty: "basica", question: "¿Cómo se convierte un string a número?", options: ["Number(str)", "parseInt(str)", "parseFloat(str)", "Todas son correctas"], correct: 3},
+            {id: 64, difficulty: "basica", question: "¿Cuál es el operador de incremento en JavaScript?", options: ["++", "+=", "+1", "inc"], correct: 0},
+            {id: 65, difficulty: "basica", question: "¿Qué método se usa para unir elementos de un array en un string?", options: ["concat()", "join()", "merge()", "combine()"], correct: 1},
+            {id: 66, difficulty: "intermedia", question: "¿Qué es una función callback?", options: ["Una función que llama a otra función", "Una función pasada como argumento a otra función", "Una función recursiva", "Una función anónima"], correct: 1},
+            {id: 67, difficulty: "intermedia", question: "¿Qué es el hoisting en JavaScript?", options: ["Un tipo de bucle", "El comportamiento de mover declaraciones al inicio", "Una función nativa", "Un método de arrays"], correct: 1},
+            {id: 68, difficulty: "intermedia", question: "¿Cuál es la diferencia entre let y var?", options: ["No hay diferencia", "let tiene scope de bloque, var tiene scope de función", "var es más moderno", "let es más rápido"], correct: 1},
+            {id: 69, difficulty: "intermedia", question: "¿Qué hace el método map() en arrays?", options: ["Crea un nuevo array con los resultados de una función", "Filtra elementos", "Ordena elementos", "Suma elementos"], correct: 0},
+            {id: 70, difficulty: "intermedia", question: "¿Qué es una arrow function?", options: ["Una función especial", "Una sintaxis más corta para escribir funciones", "Una función asíncrona", "Una función recursiva"], correct: 1},
+            {id: 71, difficulty: "intermedia", question: "¿Qué hace el método filter()?", options: ["Modifica todos los elementos", "Crea un nuevo array con elementos que cumplan una condición", "Ordena elementos", "Elimina duplicados"], correct: 1},
+            {id: 72, difficulty: "intermedia", question: "¿Qué es el 'this' en JavaScript?", options: ["Una variable global", "Una referencia al objeto actual", "Una palabra reservada sin función", "Un tipo de dato"], correct: 1},
+            {id: 73, difficulty: "intermedia", question: "¿Qué hace el método reduce()?", options: ["Reduce el tamaño del array", "Aplica una función acumuladora sobre los elementos", "Elimina elementos duplicados", "Ordena el array"], correct: 1},
+            {id: 74, difficulty: "intermedia", question: "¿Qué es destructuring en JavaScript?", options: ["Eliminar propiedades", "Extraer valores de arrays u objetos en variables", "Destruir objetos", "Limpiar memoria"], correct: 1},
+            {id: 75, difficulty: "intermedia", question: "¿Qué hace el operador spread (...)?", options: ["Multiplica valores", "Expande elementos de un iterable", "Concatena strings", "Divide arrays"], correct: 1},
+            {id: 76, difficulty: "intermedia", question: "¿Qué es un closure en JavaScript?", options: ["Una función que cierra el programa", "Una función con acceso a variables de su scope externo", "Un tipo de bucle", "Un método de objetos"], correct: 1},
+            {id: 77, difficulty: "intermedia", question: "¿Qué hace JSON.parse()?", options: ["Convierte un objeto a JSON string", "Convierte un JSON string a objeto JavaScript", "Valida JSON", "Comprime JSON"], correct: 1},
+            {id: 78, difficulty: "intermedia", question: "¿Qué es el event bubbling?", options: ["Un tipo de animación", "La propagación de eventos desde el hijo al padre", "Un método de arrays", "Una función de validación"], correct: 1},
+            {id: 79, difficulty: "intermedia", question: "¿Qué hace setTimeout()?", options: ["Detiene el tiempo", "Ejecuta código después de un tiempo especificado", "Mide el tiempo de ejecución", "Pausa la ejecución"], correct: 1},
+            {id: 80, difficulty: "intermedia", question: "¿Qué es const en JavaScript?", options: ["Una variable que nunca cambia", "Una variable cuya referencia no puede ser reasignada", "Una constante matemática", "Una función constante"], correct: 1},
+            {id: 81, difficulty: "avanzada", question: "¿Qué es una Promise en JavaScript?", options: ["Una promesa verbal", "Un objeto que representa una operación asíncrona", "Un tipo de función", "Un método de arrays"], correct: 1},
+            {id: 82, difficulty: "avanzada", question: "¿Qué hace async/await?", options: ["Acelera el código", "Simplifica el trabajo con Promises", "Pausa el navegador", "Crea múltiples hilos"], correct: 1},
+            {id: 83, difficulty: "avanzada", question: "¿Qué es el Event Loop?", options: ["Un bucle infinito", "El mecanismo que maneja la ejecución asíncrona", "Un tipo de evento", "Una función recursiva"], correct: 1},
+            {id: 84, difficulty: "avanzada", question: "¿Qué es el prototype en JavaScript?", options: ["Una copia de un objeto", "El mecanismo de herencia en JavaScript", "Un tipo de función", "Una variable especial"], correct: 1},
+            {id: 85, difficulty: "avanzada", question: "¿Qué hace Object.freeze()?", options: ["Congela el navegador", "Hace un objeto inmutable", "Detiene la ejecución", "Serializa el objeto"], correct: 1},
+            {id: 86, difficulty: "avanzada", question: "¿Qué es el Call Stack?", options: ["Una función especial", "La pila de ejecución de funciones", "Un método de arrays", "Un tipo de variable"], correct: 1},
+            {id: 87, difficulty: "avanzada", question: "¿Qué es un Generator en JavaScript?", options: ["Un creador de números aleatorios", "Una función que puede pausar y reanudar su ejecución", "Un tipo de bucle", "Un método de objetos"], correct: 1},
+            {id: 88, difficulty: "avanzada", question: "¿Qué hace el método bind()?", options: ["Une arrays", "Crea una nueva función con un 'this' específico", "Enlaza eventos", "Conecta con APIs"], correct: 1},
+            {id: 89, difficulty: "avanzada", question: "¿Qué es WeakMap en JavaScript?", options: ["Un mapa débil de red", "Una colección con claves débilmente referenciadas", "Un array especial", "Un tipo de objeto"], correct: 1},
+            {id: 90, difficulty: "avanzada", question: "¿Qué es el Temporal Dead Zone?", options: ["Una zona horaria", "El período donde no se puede acceder a una variable let/const", "Un error de sintaxis", "Una función de tiempo"], correct: 1},
+            {id: 91, difficulty: "avanzada", question: "¿Qué hace Proxy en JavaScript?", options: ["Crea un servidor proxy", "Crea un objeto que intercepta operaciones sobre otro objeto", "Protege variables", "Valida datos"], correct: 1},
+            {id: 92, difficulty: "avanzada", question: "¿Qué es el Symbol en JavaScript?", options: ["Un símbolo matemático", "Un tipo de dato primitivo único e inmutable", "Una función especial", "Un operador"], correct: 1},
+            {id: 93, difficulty: "avanzada", question: "¿Qué hace Object.seal()?", options: ["Sella archivos", "Previene añadir/eliminar propiedades pero permite modificar existentes", "Congela el objeto completamente", "Crea una copia del objeto"], correct: 1},
+            {id: 94, difficulty: "avanzada", question: "¿Qué es la Tail Call Optimization?", options: ["Una técnica de compresión", "Optimización de funciones recursivas", "Un método de arrays", "Una función de rendimiento"], correct: 1},
+            {id: 95, difficulty: "avanzada", question: "¿Qué hace el método Reflect.apply()?", options: ["Aplica estilos", "Llama a una función con argumentos específicos", "Copia objetos", "Valida funciones"], correct: 1},
+            {id: 96, difficulty: "avanzada", question: "¿Qué es un módulo ES6?", options: ["Un tipo de función", "Un sistema para organizar y reutilizar código", "Una librería externa", "Un framework"], correct: 1},
+            {id: 97, difficulty: "avanzada", question: "¿Qué es el Memoization?", options: ["Recordar valores", "Técnica de optimización que cachea resultados de funciones", "Un tipo de memoria", "Una función de arrays"], correct: 1},
+            {id: 98, difficulty: "avanzada", question: "¿Qué hace el método Object.create()?", options: ["Copia un objeto", "Crea un objeto con el prototipo especificado", "Valida objetos", "Serializa objetos"], correct: 1},
+            {id: 99, difficulty: "avanzada", question: "¿Qué es el Currying en JavaScript?", options: ["Un tipo de comida", "Técnica de transformar función con múltiples argumentos en funciones con un argumento", "Una función recursiva", "Un método de arrays"], correct: 1},
+            {id: 100, difficulty: "avanzada", question: "¿Qué es el BigInt en JavaScript?", options: ["Un número grande", "Un tipo de dato para representar enteros arbitrariamente grandes", "Una función matemática", "Un método de arrays"], correct: 1}
+        ];
+
+        let userAnswers = {};
+
+        function renderQuestions() {
+            const examContent = document.getElementById('examContent');
+            examContent.innerHTML = '';
+            
+            questions.forEach(q => {
+                const questionDiv = document.createElement('div');
+                questionDiv.className = 'question-container';
+                
+                const headerDiv = document.createElement('div');
+                headerDiv.className = 'question-header';
+                headerDiv.innerHTML = `
+                    <span class="question-number">Pregunta ${q.id}</span>
+                    <span class="difficulty ${q.difficulty}">${q.difficulty.toUpperCase()}</span>
+                `;
+                
+                const questionText = document.createElement('div');
+                questionText.className = 'question-text';
+                questionText.textContent = q.question;
+                
+                const optionsDiv = document.createElement('div');
+                optionsDiv.className = 'options';
+                
+                q.options.forEach((option, index) => {
+                    const label = document.createElement('label');
+                    label.className = 'option';
+                    label.setAttribute('data-question', q.id);
+                    label.setAttribute('data-option', index);
+                    
+                    const radio = document.createElement('input');
+                    radio.type = 'radio';
+                    radio.name = 'question' + q.id;
+                    radio.value = index;
+                    
+                    const span = document.createElement('span');
+                    span.textContent = option;
+                    
+                    label.appendChild(radio);
+                    label.appendChild(span);
+                    optionsDiv.appendChild(label);
+                    
+                    label.addEventListener('click', function() {
+                        const qId = this.getAttribute('data-question');
+                        const optIndex = parseInt(this.getAttribute('data-option'));
+                        
+                        radio.checked = true;
+                        
+                        document.querySelectorAll(`[data-question="${qId}"]`).forEach(opt => {
+                            opt.classList.remove('selected');
+                        });
+                        
+                        this.classList.add('selected');
+                        userAnswers[qId] = optIndex;
+                        updateProgress();
+                    });
+                });
+                
+                questionDiv.appendChild(headerDiv);
+                questionDiv.appendChild(questionText);
+                questionDiv.appendChild(optionsDiv);
+                examContent.appendChild(questionDiv);
+            });
+        }
+
+        function updateProgress() {
+            const answered = Object.keys(userAnswers).length;
+            const percentage = (answered / questions.length) * 100;
+            document.getElementById('progressFill').style.width = percentage + '%';
+        }
+
+        document.getElementById('submitBtn').addEventListener('click', function() {
+            if (Object.keys(userAnswers).length < questions.length) {
+                alert('⚠️ Por favor responde todas las preguntas antes de calificar.\n\nRespondidas: ' + Object.keys(userAnswers).length + '/100');
+                return;
+            }
+
+            let correct = 0;
+            let basicCorrect = 0, basicTotal = 0;
+            let intermediateCorrect = 0, intermediateTotal = 0;
+            let advancedCorrect = 0, advancedTotal = 0;
+
+            questions.forEach(q => {
+                const userAnswer = userAnswers[q.id];
+                const isCorrect = userAnswer === q.correct;
+                
+                if (isCorrect) correct++;
+
+                if (q.difficulty === 'basica') {
+                    basicTotal++;
+                    if (isCorrect) basicCorrect++;
+                } else if (q.difficulty === 'intermedia') {
+                    intermediateTotal++;
+                    if (isCorrect) intermediateCorrect++;
+                } else if (q.difficulty === 'avanzada') {
+                    advancedTotal++;
+                    if (isCorrect) advancedCorrect++;
+                }
+
+                const options = document.querySelectorAll(`[data-question="${q.id}"]`);
+                options.forEach((option, index) => {
+                    if (index === q.correct) {
+                        option.classList.add('correct');
+                    }
+                    if (index === userAnswer && userAnswer !== q.correct) {
+                        option.classList.add('incorrect');
+                    }
+                    option.style.pointerEvents = 'none';
+                });
+            });
+
+            const percentage = ((correct / questions.length) * 100).toFixed(1);
+            
+            let message = '';
+            if (percentage >= 90) {
+                message = '🏆 ¡Excelente! Dominas HTML y JavaScript';
+            } else if (percentage >= 75) {
+                message = '🎉 ¡Muy bien! Tienes un buen conocimiento';
+            } else if (percentage >= 60) {
+                message = '👍 ¡Bien! Sigue practicando para mejorar';
+            } else {
+                message = '📚 Sigue estudiando, ¡tú puedes mejorar!';
+            }
+            
+            document.getElementById('score').textContent = percentage + '%';
+            document.getElementById('scoreDetails').innerHTML = `
+                <p style="font-size: 1.4em; margin-bottom: 20px;">${message}</p>
+                <p style="font-size: 1.2em;"><strong>${correct}</strong> de <strong>${questions.length}</strong> preguntas correctas</p>
+                <hr style="margin: 25px 0; opacity: 0.3;">
+                <div style="text-align: left; max-width: 400px; margin: 0 auto;">
+                    <p style="margin: 10px 0;"><strong>📗 Básicas:</strong> ${basicCorrect}/${basicTotal} → ${((basicCorrect/basicTotal)*100).toFixed(1)}%</p>
+                    <p style="margin: 10px 0;"><strong>📘 Intermedias:</strong> ${intermediateCorrect}/${intermediateTotal} → ${((intermediateCorrect/intermediateTotal)*100).toFixed(1)}%</p>
+                    <p style="margin: 10px 0;"><strong>📕 Avanzadas:</strong> ${advancedCorrect}/${advancedTotal} → ${((advancedCorrect/advancedTotal)*100).toFixed(1)}%</p>
+                </div>
+            `;
+            
+            document.getElementById('results').classList.add('show');
+            this.disabled = true;
+            this.textContent = '✓ Examen Calificado';
+            
+            setTimeout(() => {
+                document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 100);
+        });
+
+        renderQuestions();
+    </script>
+</body>
+</html>
